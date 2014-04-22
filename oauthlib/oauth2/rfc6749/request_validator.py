@@ -220,6 +220,7 @@ class RequestValidator(object):
             - whether the redirect URI used is the client default or not
             - a resource owner / user (request.user)
             - authorized scopes (request.scopes)
+            - if it was issued in response to an OpenID Connect request
 
         The authorization code grant dict (code) holds at least the key 'code'::
 

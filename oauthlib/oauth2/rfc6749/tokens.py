@@ -196,6 +196,7 @@ class BearerToken(TokenBase):
             refresh_token_generator or self.token_generator
         )
         self.expires_in = expires_in or 3600
+        self._token_modifiers = []
 
     def create_token(self, request, refresh_token=False):
         """Create a BearerToken, by default without refresh token."""
@@ -228,6 +229,9 @@ class BearerToken(TokenBase):
 
         token.update(request.extra_credentials or {})
 
+        for modifier in self._token_modifiers:
+            token = modifier(token, request, self.request_validator, expires_in)
+
         self.request_validator.save_bearer_token(token, request)
         return token
 
@@ -247,3 +251,13 @@ class BearerToken(TokenBase):
             return 5
         else:
             return 0
+
+    def register_token_modifier(self, func):
+        """Register a new function to modify the token
+        created on create_token method.
+
+        The function MUST accept 4 parameters: token, request,
+        request_validator and expires_in, and it MUST return
+        a token, even if it's unmodified.
+        """
+        self._token_modifiers.append(func)
