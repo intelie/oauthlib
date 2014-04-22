@@ -90,8 +90,9 @@ class AuthorizationCodeGrant(GrantTypeBase):
 
     .. _`Authorization Code Grant`: http://tools.ietf.org/html/rfc6749#section-4.1
     """
-    def __init__(self, request_validator=None):
+    def __init__(self, request_validator=None, response_types='code'):
         self.request_validator = request_validator or RequestValidator()
+        self.allowed_response_types = response_types.split()
 
     def create_authorization_code(self, request):
         """Generates an authorization grant represented as a dictionary."""
@@ -314,7 +315,7 @@ class AuthorizationCodeGrant(GrantTypeBase):
             raise errors.UnauthorizedClientError(request=request)
 
         # REQUIRED. Value MUST be set to "code".
-        if request.response_type != 'code':
+        if not self.is_response_type_valid(request):
             raise errors.UnsupportedResponseTypeError(state=request.state, request=request)
 
         # OPTIONAL. The scope of the access request as described by Section 3.3

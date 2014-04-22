@@ -35,3 +35,6 @@ class GrantTypeBase(object):
         if not self.request_validator.validate_scopes(request.client_id,
                 request.scopes, request.client, request):
             raise errors.InvalidScopeError(state=request.state, request=request)
+
+    def is_response_type_valid(self, request):
+        return set(request.response_type.split()).issubset(self.allowed_response_types)
