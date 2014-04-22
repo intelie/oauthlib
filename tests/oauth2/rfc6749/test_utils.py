@@ -1,4 +1,5 @@
 from __future__ import absolute_import, unicode_literals
+import mock
 
 import datetime
 import os
@@ -10,6 +11,7 @@ from oauthlib.oauth2.rfc6749.utils import generate_age
 from oauthlib.oauth2.rfc6749.utils import is_secure_transport
 from oauthlib.oauth2.rfc6749.utils import params_from_uri
 from oauthlib.oauth2.rfc6749.utils import list_to_scope, scope_to_list
+from oauthlib.oauth2.rfc6749.utils import GrantTypeHandler
 
 
 class ScopeObject:
@@ -89,5 +91,59 @@ class UtilsTests(TestCase):
         self.assertEqual(scope_to_list(obj_list_scopes), expected)
 
 
+class GrantTypeHandlerTest(TestCase):
+    def test_creation_from_dict(self):
+        response_types = {
+            'token': 'token handler',
+            'code': 'code handler'
+        }
 
+        grant_type_handler = GrantTypeHandler(response_types,
+                default_response_type='code')
+
+        self.assertEqual(grant_type_handler.response_types,
+                [({'token'}, 'token handler'), ({'code'}, 'code handler')])
+
+    def test_multiple_response_types(self):
+        response_types = [
+            ('code', 'auth handler'),
+            ('token', 'implicit handler'),
+            ('id_token', 'implicit handler'),
+            ('id_token token', 'implicit handler'),
+            ('code id_token', 'hybrid handler'),
+            ('code token', 'hybrid handler'),
+            ('code token id_token', 'hybrid handler')
+        ]
+
+        request_mock = mock.MagicMock()
+        grant_type_handler = GrantTypeHandler(response_types, 'code')
+        
+        request_mock.response_type = 'token id_token'
+        self.assertEqual(grant_type_handler.get(request_mock), 'implicit handler')
+
+        request_mock.response_type = 'code'
+        self.assertEqual(grant_type_handler.get(request_mock), 'auth handler')
+
+        request_mock.response_type = 'code token'
+        self.assertEqual(grant_type_handler.get(request_mock), 'hybrid handler')
+
+    def test_invalid_default_response_type(self):
+        with self.assertRaises(ValueError):
+            grant_type_handler = GrantTypeHandler(response_types={
+                'code': None,
+                'token': None
+            }, default_response_type='invalid')
+
+    def test_invalid_request_response_type(self):
+        request_mock = mock.MagicMock()
+        grant_type_handler = GrantTypeHandler({
+            'token': 'token handler',
+            'code': 'code handler'
+        }, 'code')
+
+        request_mock.response_type = None
+        self.assertEqual(grant_type_handler.get(request_mock), 'code handler')
+
+        request_mock.response_type = 'invalid'
+        self.assertEqual(grant_type_handler.get(request_mock), 'code handler')
 

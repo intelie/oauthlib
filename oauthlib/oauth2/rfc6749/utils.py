@@ -89,3 +89,42 @@ def is_secure_transport(uri):
     if os.environ.get('DEBUG'):
         return True
     return uri.lower().startswith('https://')
+
+
+class GrantTypeHandler(object):
+    """This class wraps a list of handlers and related response_type's
+    and returns the right handler for a certain request.
+    """
+
+    def __init__(self, response_types, default_response_type):
+        default_response_type = set(default_response_type.split())
+        if isinstance(response_types, dict):
+            response_types = response_types.items()
+
+        self.response_types = []
+        self.default_handler = False
+        for response_type, handler in response_types:
+            response_type = set(response_type.split())
+
+            if (not self.default_handler
+                    and default_response_type.issubset(response_type)):
+                self.default_handler = handler
+
+            self.response_types.append((response_type, handler))
+
+        if not self.default_handler:
+            raise ValueError('default_response_type does not correspond '
+                             'to any given response_type')
+
+        self.default_response_type = default_response_type
+
+    def get(self, request):
+        if not request.response_type:
+            return self.default_handler
+
+        desired_response_type = set(request.response_type.split())
+        for response_type, handler in self.response_types:
+            if desired_response_type.issubset(response_type):
+                return handler
+
+        return self.default_handler

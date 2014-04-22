@@ -11,6 +11,7 @@ from __future__ import absolute_import, unicode_literals
 from oauthlib.common import Request, log
 
 from .base import BaseEndpoint, catch_errors_and_unavailability
+from ..utils import GrantTypeHandler
 
 
 class AuthorizationEndpoint(BaseEndpoint):
@@ -59,21 +60,9 @@ class AuthorizationEndpoint(BaseEndpoint):
     def __init__(self, default_response_type, default_token_type,
             response_types):
         BaseEndpoint.__init__(self)
-        self._response_types = response_types
-        self._default_response_type = default_response_type
+
+        self.grant_type_handler = GrantTypeHandler(response_types, default_response_type)
         self._default_token_type = default_token_type
-
-    @property
-    def response_types(self):
-        return self._response_types
-
-    @property
-    def default_response_type(self):
-        return self._default_response_type
-
-    @property
-    def default_response_type_handler(self):
-        return self.response_types.get(self.default_response_type)
 
     @property
     def default_token_type(self):
@@ -89,8 +78,7 @@ class AuthorizationEndpoint(BaseEndpoint):
         request.user = None     # TODO: explain this in docs
         for k, v in (credentials or {}).items():
             setattr(request, k, v)
-        response_type_handler = self.response_types.get(
-                request.response_type, self.default_response_type_handler)
+        response_type_handler = self.grant_type_handler.get(request)
         log.debug('Dispatching response_type %s request to %r.',
                   request.response_type, response_type_handler)
         return response_type_handler.create_authorization_response(
@@ -102,6 +90,6 @@ class AuthorizationEndpoint(BaseEndpoint):
         """Extract response_type and route to the designated handler."""
         request = Request(uri, http_method=http_method, body=body, headers=headers)
         request.scopes = None
-        response_type_handler = self.response_types.get(
-                request.response_type, self.default_response_type_handler)
+        response_type_handler = self.grant_type_handler.get(request)
+
         return response_type_handler.validate_authorization_request(request)
