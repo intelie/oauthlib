@@ -112,8 +112,9 @@ class ImplicitGrant(GrantTypeBase):
     .. _`Section 10.16`: http://tools.ietf.org/html/rfc6749#section-10.16
     """
 
-    def __init__(self, request_validator=None):
+    def __init__(self, request_validator=None, response_types='token id_token'):
         self.request_validator = request_validator or RequestValidator()
+        self.allowed_response_types = response_types.split()
 
     def create_authorization_response(self, request, token_handler):
         """Create an authorization response.
@@ -311,7 +312,7 @@ class ImplicitGrant(GrantTypeBase):
                         description='Duplicate %s parameter.' % param, request=request)
 
         # REQUIRED. Value MUST be set to "token".
-        if request.response_type != 'token':
+        if not self.is_response_type_valid(request):
             raise errors.UnsupportedResponseTypeError(state=request.state, request=request)
 
         log.debug('Validating use of response_type token for client %r (%r).',
