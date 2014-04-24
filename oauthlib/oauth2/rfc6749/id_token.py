@@ -43,8 +43,8 @@ def id_token_modifier(token, request, request_validator, expires_in):
     if 'openid' not in request.scopes:
         return token
 
-    payload = request_validator.initial_id_token_payload(request)
-    alg, private_key = request_validator.id_token_signing_key(request)
+    payload = request_validator.initial_id_token_payload(request, request.client)
+    alg, private_key = request_validator.id_token_signing_key(request, request.client)
 
     iat = datetime.utcnow()
     exp = iat + timedelta(seconds=expires_in)
