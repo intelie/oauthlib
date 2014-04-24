@@ -14,7 +14,7 @@ def to_base64url(src):
 
 
 def is_implicit_or_hybrid_flow(request):
-    if request.response_type == 'code':
+    if not request.response_type:
         return False
 
     implicit_or_hybrid_response_types = ['code', 'token', 'id_token']
@@ -62,7 +62,7 @@ def id_token_modifier(token, request, request_validator, expires_in):
     if c_hash_required(request):
         payload['c_hash'] = make_grant_hash(token['code'], alg)
 
-    id_token = jwt.encode(payload, private_key, alg=alg)
+    id_token = jwt.encode(payload, private_key, alg)
     id_token = common.to_unicode(id_token, 'UTF-8')
 
     token['id_token'] = id_token
