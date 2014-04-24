@@ -54,6 +54,10 @@ class Server(AuthorizationEndpoint, TokenEndpoint, ResourceEndpoint,
                     'code': auth_grant,
                     'token': implicit_grant,
                 },
+                response_types=[
+                    ('code', auth_grant),
+                    ('code token', implicit_grant),
+                ],
                 default_token_type=bearer)
         TokenEndpoint.__init__(self, default_grant_type='authorization_code',
                 grant_types={
@@ -223,7 +227,7 @@ class OpenIDConnectServer(AuthorizationEndpoint, TokenEndpoint, ResourceEndpoint
         """
         auth_grant = AuthorizationCodeGrant(request_validator)
         implicit_grant = ImplicitGrant(request_validator)
-        hybrid_grant = None
+        #hybrid_grant = None
         password_grant = ResourceOwnerPasswordCredentialsGrant(request_validator)
         credentials_grant = ClientCredentialsGrant(request_validator)
         refresh_grant = RefreshTokenGrant(request_validator)
@@ -233,8 +237,8 @@ class OpenIDConnectServer(AuthorizationEndpoint, TokenEndpoint, ResourceEndpoint
         AuthorizationEndpoint.__init__(self, default_response_type='code',
                 response_types=[
                     ('code', auth_grant),
-                    ('code token', implicit_grant),
-                    ('code token id_token', hybrid_grant),
+                    ('token id_token', implicit_grant),
+                    #('code token id_token', hybrid_grant),
                 ],
                 default_token_type=bearer)
         TokenEndpoint.__init__(self, default_grant_type='authorization_code',
