@@ -311,7 +311,7 @@ class ImplicitGrant(GrantTypeBase):
                 raise errors.InvalidRequestError(state=request.state,
                         description='Duplicate %s parameter.' % param, request=request)
 
-        # REQUIRED. Value MUST be set to "token".
+        # REQUIRED. Value MUST be set to a subset or "token id_token".
         if not self.is_response_type_valid(request):
             raise errors.UnsupportedResponseTypeError(state=request.state, request=request)
 
