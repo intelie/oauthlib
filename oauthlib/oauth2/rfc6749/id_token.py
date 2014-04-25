@@ -67,10 +67,3 @@ def id_token_modifier(token, request, request_validator, expires_in):
 
     token['id_token'] = id_token
     return token
-
-
-#TODO tem que ajustar a criação de at_hash e c_hash
-#TODO ajustar grant_types auth e implicit para os casos extras de OIDC
-#TODO ajustar validator para os novos métodos, instruir para salvar OIDC!
-#    KINDA done
-#TODO ajustar OpenIDConnectServer para isso tudo
