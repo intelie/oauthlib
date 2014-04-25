@@ -14,7 +14,7 @@ def to_base64url(src):
 
 
 def is_implicit_or_hybrid_flow(request):
-    if not request.response_type:
+    if not request.response_type or request.response_type == 'code':
         return False
 
     implicit_or_hybrid_response_types = ['code', 'token', 'id_token']
