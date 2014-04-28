@@ -17,3 +17,4 @@ from .pre_configured import WebApplicationServer
 from .pre_configured import MobileApplicationServer
 from .pre_configured import LegacyApplicationServer
 from .pre_configured import BackendApplicationServer
+from .pre_configured import OpenIDConnectServer

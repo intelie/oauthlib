@@ -22,6 +22,7 @@ from .rfc6749.endpoints import WebApplicationServer
 from .rfc6749.endpoints import MobileApplicationServer
 from .rfc6749.endpoints import LegacyApplicationServer
 from .rfc6749.endpoints import BackendApplicationServer
+from .rfc6749.endpoints import OpenIDConnectServer
 from .rfc6749.errors import *
 from .rfc6749.grant_types import AuthorizationCodeGrant
 from .rfc6749.grant_types import ImplicitGrant
