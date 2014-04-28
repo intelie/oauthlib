@@ -50,10 +50,10 @@ class Server(AuthorizationEndpoint, TokenEndpoint, ResourceEndpoint,
         bearer = BearerToken(request_validator, token_generator,
                              token_expires_in, refresh_token_generator)
         AuthorizationEndpoint.__init__(self, default_response_type='code',
-                response_types=[
-                    ('code', auth_grant),
-                    ('code token', implicit_grant),
-                ],
+                response_types={
+                    'code': auth_grant,
+                    'token': implicit_grant,
+                },
                 default_token_type=bearer)
         TokenEndpoint.__init__(self, default_grant_type='authorization_code',
                 grant_types={
